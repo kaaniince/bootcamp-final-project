@@ -3,13 +3,15 @@ import React, { useContext } from "react";
 // import components
 import Hero from "../components/Hero";
 import Product from "../components/Product";
+import Loading from "../components/Loading";
 import { ProductContext } from "../contexts/ProductContext";
 
 function Home() {
-  // get products from product context
-  const { products } = useContext(ProductContext);
-  console.log(products);
+  const { products, isLoading } = useContext(ProductContext);
 
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <div>
       <Hero />

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./App.css";
 import "./index.css";
+import { useContext } from "react";
+import { ProductContext } from "./contexts/ProductContext";
 
 // Router
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -13,7 +15,15 @@ import ProductDetails from "./pages/ProductDetails";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
+import Loading from "./components/Loading";
+
 function App() {
+  const { isLoading } = useContext(ProductContext);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <div className="overflow-hidden">
       <Router>
