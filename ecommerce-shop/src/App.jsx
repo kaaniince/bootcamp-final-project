@@ -10,6 +10,8 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 // Pages
 import Home from "./pages/Home";
 import ProductDetails from "./pages/ProductDetails";
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 // Components
 import Header from "./components/Header";
@@ -31,6 +33,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
         <Sidebar />
         <Footer />

@@ -39,7 +39,7 @@ function CartItem({ item }) {
               {amount}
             </div>
             <div
-              className="flex-1 h-full flex justify-center items-center cursor-pointer h-full"
+              className="flex-1 flex justify-center items-center cursor-pointer h-full"
               onClick={() => increaseAmount(id)}
             >
               <IoMdAdd className="text-primary" />
