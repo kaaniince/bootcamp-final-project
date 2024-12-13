@@ -9,7 +9,7 @@ import { CartContext } from "../contexts/CartContext.jsx";
 
 function Sidebar() {
   const { isOpen, handleClose } = useContext(SidebarContext);
-  const { cart, clearCart } = useContext(CartContext);
+  const { cart, clearCart, total } = useContext(CartContext);
   return (
     <div
       className={`${
@@ -27,16 +27,16 @@ function Sidebar() {
           <IoMdClose className="text-2xl" />
         </div>
       </div>
-      <div className="flex flex-col gap-y-8 py-6">
+      <div className="flex flex-col gap-y-2 h-[520px] lg:h-[640px] overflow-y-auto overflow-x-hidden border-b">
         {cart.map((item) => {
           return <CartItem key={item.id} item={item} />;
         })}
       </div>
 
-      <div>
-        <div className="bg-pink-200 flex w-full justify-between items-center">
-          <div>
-            <span>Total:</span> $ 100
+      <div className="flex flex-col gap-y-4 px-4 mt-4">
+        <div className="flex w-full justify-between items-center">
+          <div className="font-semibold uppercase">
+            <span className="mr-2">Total:</span> ${parseFloat(total).toFixed(2)}
           </div>
 
           <div
