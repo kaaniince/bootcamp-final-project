@@ -6,35 +6,44 @@ const CategoryFilter = () => {
     useContext(ProductContext);
 
   return (
-    <div className="mb-8">
-      <h3 className="text-xl font-semibold mb-4">Categories</h3>
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setSelectedCategory("all")}
-          className={`px-4 py-2 rounded-md ${
-            selectedCategory === "all"
-              ? "bg-primary text-white"
-              : "bg-gray-200 hover:bg-gray-300"
-          }`}
-        >
-          All
-        </button>
+    <div className="mb-4 p-4 bg-white shadow-md rounded-md mt-10">
+      <h3 className="text-xl font-bold mb-4 text-center text-gray-800">
+        Categories
+      </h3>
+      <div className="flex flex-wrap justify-center gap-4">
+        <CategoryButton
+          category="all"
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+        />
         {categories.map((category) => (
-          <button
+          <CategoryButton
             key={category}
-            onClick={() => setSelectedCategory(category)}
-            className={`px-4 py-2 rounded-md capitalize ${
-              selectedCategory === category
-                ? "bg-primary text-white"
-                : "bg-gray-200 hover:bg-gray-300"
-            }`}
-          >
-            {category}
-          </button>
+            category={category}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+          />
         ))}
       </div>
     </div>
   );
 };
+
+const CategoryButton = ({
+  category,
+  selectedCategory,
+  setSelectedCategory,
+}) => (
+  <button
+    onClick={() => setSelectedCategory(category)}
+    className={`px-4 py-2 rounded-md transition-colors duration-200 ${
+      selectedCategory === category
+        ? "bg-primary text-white"
+        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+    }`}
+  >
+    {category === "all" ? "All" : category}
+  </button>
+);
 
 export default CategoryFilter;

@@ -18,6 +18,10 @@ import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
 import Loading from "./components/Loading";
+import BackToTop from "./components/BackToTop";
+import Newsletter from "./components/NewsLetter";
+import BrandShowcase from "./components/BrandShowcase";
+import Announcement from "./components/Announcement";
 
 function App() {
   const { isLoading } = useContext(ProductContext);
@@ -29,15 +33,26 @@ function App() {
   return (
     <div className="overflow-hidden">
       <Router>
+        <Announcement />
         <Header />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/"
+            element={
+              <>
+                <Home />
+                <Newsletter />
+                <BrandShowcase />
+              </>
+            }
+          />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
         <Sidebar />
         <Footer />
+        <BackToTop />
       </Router>
     </div>
   );
