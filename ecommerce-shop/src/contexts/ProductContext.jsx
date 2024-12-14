@@ -6,13 +6,8 @@ export const ProductContext = createContext();
 
 const ProductProvider = ({ children }) => {
   const { products, isLoading, categories } = useProduct();
-  const {
-    filteredProducts,
-    selectedCategory,
-    setSelectedCategory,
-    searchTerm,
-    setSearchTerm,
-  } = useFilter(products);
+  const { filteredProducts, selectedCategory, setSelectedCategory } =
+    useFilter(products);
 
   return (
     <ProductContext.Provider
@@ -22,8 +17,6 @@ const ProductProvider = ({ children }) => {
         categories,
         selectedCategory,
         setSelectedCategory,
-        searchTerm,
-        setSearchTerm,
       }}
     >
       {children}
