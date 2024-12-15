@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
-import { ProductContext } from "../contexts/ProductContext";
+import { ProductContext } from "../../contexts/ProductContext";
+import CategoryButton from "./CategoryButton";
 
 const CategoryFilter = () => {
   const { categories, selectedCategory, setSelectedCategory } =
@@ -28,22 +29,5 @@ const CategoryFilter = () => {
     </div>
   );
 };
-
-const CategoryButton = ({
-  category,
-  selectedCategory,
-  setSelectedCategory,
-}) => (
-  <button
-    onClick={() => setSelectedCategory(category)}
-    className={`px-4 py-2 rounded-md transition-colors duration-200 ${
-      selectedCategory === category
-        ? "bg-primary text-white"
-        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-    }`}
-  >
-    {category === "all" ? "All" : category}
-  </button>
-);
 
 export default CategoryFilter;

@@ -1,27 +1,17 @@
-import { useState } from "react";
-import "./App.css";
 import "./index.css";
-import { useContext } from "react";
+import { useContext, Suspense, lazy } from "react";
 import { ProductContext } from "./contexts/ProductContext";
-
-// Router
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Header from "./components/Header/Header";
+import Footer from "./components/Footer/Footer";
+import Loading from "./components/Loading/Loading"; // Corrected import path
+import Sidebar from "./components/Sidebar/Sidebar";
 
-// Pages
-import Home from "./pages/Home";
-import ProductDetails from "./pages/ProductDetails";
-import Login from "./components/Login";
-import Register from "./components/Register";
-
-// Components
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
-import Footer from "./components/Footer";
-import Loading from "./components/Loading";
-import BackToTop from "./components/BackToTop";
-import Newsletter from "./components/NewsLetter";
-import BrandShowcase from "./components/BrandShowcase";
-import Announcement from "./components/Announcement";
+// Kritik olmayan bileşenleri lazy loading ile yükle
+const ProductDetails = lazy(() => import("./pages/ProductDetails"));
+const Home = lazy(() => import("./pages/Home"));
+const Login = lazy(() => import("./components/Login"));
+const Register = lazy(() => import("./components/Register"));
 
 function App() {
   const { isLoading } = useContext(ProductContext);
@@ -33,26 +23,17 @@ function App() {
   return (
     <div className="overflow-hidden">
       <Router>
-        <Announcement />
         <Header />
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                <Home />
-                <Newsletter />
-                <BrandShowcase />
-              </>
-            }
-          />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
-        <Sidebar />
+        <Suspense fallback={<Loading />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+          <Sidebar />
+        </Suspense>
         <Footer />
-        <BackToTop />
       </Router>
     </div>
   );
