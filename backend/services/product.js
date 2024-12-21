@@ -2,13 +2,16 @@ const mongooseProduct = require("../models/product");
 
 async function createProduct(productParams) {
   try {
-    const { name, price, description, color, stock } = productParams;
+    const { title, price, image, description, color, stock, category } =
+      productParams;
     const newProduct = new mongooseProduct({
-      name,
       price,
+      title,
+      image,
       description,
       color,
       stock,
+      category,
     });
     await newProduct.save();
     return newProduct;
@@ -40,15 +43,18 @@ async function getProducts() {
 }
 
 async function updateProduct(productParams) {
-  const { id, name, price, description, color, stock } = productParams;
+  const { id, price, title, image, description, color, stock, category } =
+    productParams;
   try {
     const product = await mongooseProduct.findById(id);
 
-    product.name = name;
     product.price = price;
+    product.title = title;
+    product.image = image;
     product.description = description;
     product.color = color;
     product.stock = stock;
+    product.category = category;
     await product.save();
     return product;
   } catch (error) {

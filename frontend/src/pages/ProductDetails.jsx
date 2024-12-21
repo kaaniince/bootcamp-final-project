@@ -9,9 +9,15 @@ function ProductDetails() {
   const { id } = useParams();
   const { products } = useContext(ProductContext);
   const { addToCart } = useContext(CartContext);
+
   const product = useMemo(() => {
-    return products.find((item) => item.id === parseInt(id));
+    return products.find((item) => item.id === id);
   }, [products, id]);
+
+  // Add null check before destructuring
+  if (!product) {
+    return <div>Product not found</div>;
+  }
 
   const { title, price, description, image } = product;
 

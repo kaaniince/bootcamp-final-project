@@ -2,10 +2,9 @@ const productService = require("../services/product");
 
 const productController = {
   createProduct: async (req, res) => {
-    const { name, price, description, color, stock } = req.body;
-    if (!name) {
-      res.status(502).send({ error: "Product name is required" });
-    }
+    const { title, price, description, color, stock, image, category } =
+      req.body;
+
     if (!price) {
       res.status(502).send({ error: "Product price is required" });
     }
@@ -51,7 +50,7 @@ const productController = {
     try {
       const response = await productService.getProducts();
       if (response) {
-        res.status(200).send({ response });
+        res.status(200).json({ response });
       } else {
         res.status(500).send({ error: "No products found" });
       }

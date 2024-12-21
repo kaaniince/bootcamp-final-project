@@ -2,7 +2,7 @@ const express = require("express");
 const routes = require("./routes/index");
 const connectDB = require("./config/db");
 const { redisCon } = require("./utils/redis");
-const corsMiddleware = require("./middleware/cors");
+const cors = require("cors");
 
 const app = express();
 
@@ -16,6 +16,12 @@ app.use(express.urlencoded({ extended: true }));
 connectDB();
 
 redisCon();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow only your frontend origin
+  })
+);
 
 app.get(
   "/test",
