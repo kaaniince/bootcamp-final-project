@@ -3,6 +3,8 @@ const routes = require("./routes/index");
 const connectDB = require("./config/db");
 const { redisCon } = require("./utils/redis");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+require("dotenv").config();
 
 const app = express();
 
@@ -17,9 +19,12 @@ connectDB();
 
 redisCon();
 
+app.use(cookieParser());
+
 app.use(
   cors({
     origin: "http://localhost:5173", // Allow only your frontend origin
+    credentials: true, // Cookie'lerin frontend'e gönderilmesine izin ver
   })
 );
 

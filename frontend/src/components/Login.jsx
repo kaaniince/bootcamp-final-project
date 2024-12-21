@@ -1,106 +1,85 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../contexts/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
 
-const Login = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { login, isAuthenticated } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Login işlemleri buraya gelecek
-    console.log("Form submitted:", formData);
+    setError("");
+
+    const success = await login({ email, password });
+    if (success) {
+      navigate("/");
+    } else {
+      setError("Invalid email or password");
+    }
   };
 
   return (
-    <div className="container mx-auto py-16  h-screen flex justify-center items-center">
-      <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Login
+        </h2>
+
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email Input */}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2">
               Email
             </label>
             <input
               type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-brown-500"
               required
             />
           </div>
 
-          {/* Password Input */}
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2">
               Password
             </label>
             <input
               type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-brown-500"
               required
             />
           </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="remember"
-                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-              />
-              <label
-                htmlFor="remember"
-                className="ml-2 block text-sm text-gray-700"
-              >
-                Remember me
-              </label>
-            </div>
-            <div className="text-sm">
-              <a href="#" className="text-primary hover:underline">
-                Forgot password?
-              </a>
-            </div>
-          </div>
-
-          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90 transition duration-300"
+            className="w-full bg-brown-600 text-white py-2 px-4 rounded hover:bg-brown-700 transition duration-200"
           >
             Sign In
           </button>
 
-          {/* Register Link */}
-          <p className="text-center text-sm text-gray-600 mt-4">
+          <p className="text-center text-gray-600 mt-4">
             Don't have an account?{" "}
-            <Link to="/register" className="text-primary hover:underline">
+            <Link
+              to="/register"
+              className="text-brown-600 hover:text-brown-700"
+            >
               Register here
             </Link>
           </p>
@@ -108,6 +87,6 @@ const Login = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Login;

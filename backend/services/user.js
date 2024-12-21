@@ -2,19 +2,39 @@ const bcrypt = require("bcryptjs");
 const mongooseUser = require("../models/user");
 
 async function createUser(userParams) {
-  const { username, email, password } = userParams;
   try {
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    const newUser = await mongooseUser.create({
-      username,
+    const { name, email, password } = userParams;
+
+    // Email kontrolü
+    const existingUser = await mongooseUser.findOne({ email });
+    if (existingUser) {
+      return { error: "Email already exists" };
+    }
+
+    // Şifreyi hash'le
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Yeni kullanıcı oluştur
+    const user = new mongooseUser({
+      name,
       email,
       password: hashedPassword,
     });
-    newUser.save();
-    return true;
+
+    await user.save();
+
+    // Hassas bilgileri çıkar
+    const userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    };
+
+    return userResponse;
   } catch (error) {
-    console.error("An error occurred while creating the user:", error);
-    return false;
+    console.error("Create user error:", error);
+    return { error: "An error occurred while creating user" };
   }
 }
 

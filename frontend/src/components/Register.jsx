@@ -1,126 +1,108 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../contexts/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
 
-const Register = () => {
+function Register() {
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     email: "",
     password: "",
-    confirmPassword: "",
   });
+  const [error, setError] = useState("");
+  const { register, isAuthenticated } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Register işlemleri buraya gelecek
-    console.log("Form submitted:", formData);
+    setError("");
+
+    const success = await register(formData);
+    if (success) {
+      navigate("/login");
+    } else {
+      setError("Registration failed. Please try again.");
+    }
   };
 
   return (
-    <div className="container mx-auto py-16 h-screen flex justify-center items-center">
-      <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Register
+        </h2>
+
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Full Name Input */}
           <div>
-            <label
-              htmlFor="fullName"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2">
               Full Name
             </label>
             <input
               type="text"
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Enter your full name"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-brown-500"
               required
             />
           </div>
 
-          {/* Email Input */}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2">
               Email
             </label>
             <input
               type="email"
-              id="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Enter your email"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-brown-500"
               required
             />
           </div>
 
-          {/* Password Input */}
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2">
               Password
             </label>
             <input
               type="password"
-              id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Enter your password"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-brown-500"
               required
             />
           </div>
 
-          {/* Confirm Password Input */}
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Confirm your password"
-              required
-            />
-          </div>
-
-          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90 transition duration-300"
+            className="w-full bg-brown-600 text-white py-2 px-4 rounded hover:bg-brown-700 transition duration-200"
           >
             Register
           </button>
 
-          {/* Login Link */}
-          <p className="text-center text-sm text-gray-600 mt-4">
+          <p className="text-center text-gray-600 mt-4">
             Already have an account?{" "}
-            <Link to="/login" className="text-primary hover:underline">
+            <Link to="/login" className="text-brown-600 hover:text-brown-700">
               Login here
             </Link>
           </p>
@@ -128,6 +110,6 @@ const Register = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Register;
