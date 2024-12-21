@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../contexts/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -8,6 +8,8 @@ function Login() {
   const [error, setError] = useState("");
   const { login, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || "/";
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -21,7 +23,7 @@ function Login() {
 
     const success = await login({ email, password });
     if (success) {
-      navigate("/");
+      navigate(from);
     } else {
       setError("Invalid email or password");
     }

@@ -11,6 +11,8 @@ import AuthProvider from "./contexts/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PrivateRoute from "./components/PrivateRoute";
+import Payment from "./components/Payment/Payment";
+import PaymentSuccess from "./components/Payment/PaymentSuccess";
 // Load non-critical components with lazy loading
 const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const Home = lazy(() => import("./pages/Home"));
@@ -45,6 +47,15 @@ function App() {
                     </PrivateRoute>
                   }
                 />
+                <Route
+                  path="/checkout"
+                  element={
+                    <PrivateRoute>
+                      <Payment />
+                    </PrivateRoute>
+                  }
+                />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
               </Routes>
               <Sidebar />
             </main>

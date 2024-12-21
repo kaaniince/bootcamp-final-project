@@ -45,8 +45,11 @@ const Header = () => {
             <Logo />
           </Link>
 
-          {/* Right Side - Cart & Profile */}
+          {/* Right Side - Profile & Cart */}
           <div className="flex items-center space-x-4">
+            {/* Profile Menu */}
+            <ProfileMenu />
+
             {/* Cart Icon */}
             <div
               onClick={() => setIsOpen(!isOpen)}
@@ -59,9 +62,6 @@ const Header = () => {
                 </div>
               )}
             </div>
-
-            {/* Profile Menu */}
-            <ProfileMenu />
           </div>
         </div>
       </header>
