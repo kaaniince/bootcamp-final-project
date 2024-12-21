@@ -1,65 +1,72 @@
 // src/components/Header/Header.jsx
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { SidebarContext } from "../../contexts/SidebarContext";
+import { CartContext } from "../../contexts/CartContext";
+import { BsBag } from "react-icons/bs";
 import Logo from "./Logo";
 import ProfileMenu from "./ProfileMenu";
-import { useScroll } from "../../hooks/useScroll";
-import { Link } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../../contexts/AuthContext";
-import { FaShoppingCart } from "react-icons/fa";
 
-function Header() {
+const Header = () => {
   const [isActive, setIsActive] = useState(false);
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isOpen, setIsOpen } = useContext(SidebarContext);
+  const { itemAmount } = useContext(CartContext);
 
-  useScroll((scrollY) => {
-    setIsActive(scrollY > 60);
-  });
+  // scroll event listener
+  useEffect(() => {
+    window.addEventListener("scroll", () => {
+      window.scrollY > 60 ? setIsActive(true) : setIsActive(false);
+    });
+    return () => {
+      window.removeEventListener("scroll", () => {});
+    };
+  }, []);
 
   return (
     <>
-      {/* Announcement Bar - Her zaman en üstte */}
-      <div className="fixed w-full top-0 z-30 bg-brown-600 text-white text-center py-2 px-4">
-        <p className="text-sm">
-          Order By Dec. 15 and Select "Fast Shipping" At Checkout For Delivery
-          By Dec. 24
-        </p>
+      <div className="bg-brown-600 py-2">
+        <div className="container mx-auto">
+          <p className="text-white text-center text-sm">
+            Order By Dec. 15 and Select "Fast Shipping" At Checkout For Delivery
+            By Dec. 24
+          </p>
+        </div>
       </div>
 
-      {/* Ana Header */}
+      {/* Header */}
       <header
         className={`${
-          isActive
-            ? "bg-white py-3 shadow-lg top-0"
-            : "bg-white/80 backdrop-blur-md py-3 top-10"
-        } fixed w-full z-20 transition-all duration-300`}
+          isActive ? "bg-white py-4 shadow-md" : "bg-white py-6"
+        } fixed w-full z-10 transition-all`}
       >
-        <div className="container mx-auto flex items-center justify-between h-full px-4 lg:px-8">
+        <div className="container mx-auto px-4 flex items-center justify-between">
           {/* Logo */}
-          <Logo />
+          <Link to="/" className="flex-shrink-0">
+            <Logo />
+          </Link>
 
-          {/* Sağ Taraf - Profil ve Sepet */}
-          <div className="flex items-center space-x-6">
-            <ProfileMenu />
-            <Link
-              to="/cart"
-              className="text-gray-700 hover:text-brown-600 relative transition-colors"
+          {/* Right Side - Cart & Profile */}
+          <div className="flex items-center space-x-4">
+            {/* Cart Icon */}
+            <div
+              onClick={() => setIsOpen(!isOpen)}
+              className="cursor-pointer relative"
             >
-              <FaShoppingCart className="text-2xl" />
-              <span className="absolute -top-2 -right-2 bg-brown-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
-              </span>
-            </Link>
+              <BsBag className="text-2xl" />
+              {itemAmount > 0 && (
+                <div className="bg-red-500 absolute -right-2 -bottom-2 text-[12px] w-[18px] h-[18px] text-white rounded-full flex justify-center items-center">
+                  {itemAmount}
+                </div>
+              )}
+            </div>
+
+            {/* Profile Menu */}
+            <ProfileMenu />
           </div>
         </div>
       </header>
-
-      {/* Header için boşluk bırakma */}
-      <div
-        className={`${isActive ? "h-20" : "h-28"} transition-all duration-300`}
-      />
     </>
   );
-}
+};
 
 export default Header;
