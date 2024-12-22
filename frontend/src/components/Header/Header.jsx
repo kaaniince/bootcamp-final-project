@@ -12,7 +12,6 @@ const Header = () => {
   const { isOpen, setIsOpen } = useContext(SidebarContext);
   const { itemAmount } = useContext(CartContext);
 
-  // scroll event listener
   useEffect(() => {
     window.addEventListener("scroll", () => {
       window.scrollY > 60 ? setIsActive(true) : setIsActive(false);
@@ -24,10 +23,11 @@ const Header = () => {
 
   return (
     <>
-      <div className="bg-brown-600 py-2">
+      {/* Announcement Bar */}
+      <div className="bg-brown-600 py-2 fixed w-full z-20 top-0">
         <div className="container mx-auto">
           <p className="text-white text-center text-sm">
-            Order By Dec. 15 and Select "Fast Shipping" At Checkout For Delivery
+            Order By Dec. 15 and Select 'Fast Shipping' At Checkout For Delivery
             By Dec. 24
           </p>
         </div>
@@ -36,14 +36,12 @@ const Header = () => {
       {/* Header */}
       <header
         className={`${
-          isActive ? "bg-white py-4 shadow-md" : "bg-white py-6"
-        } fixed w-full z-10 transition-all`}
+          isActive ? "bg-white py-4 shadow-md" : "bg-none py-6"
+        } fixed w-full z-10 transition-all top-9`}
       >
-        <div className="container mx-auto px-4 flex items-center justify-between">
+        <div className="container mx-auto flex items-center justify-between h-full">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
-            <Logo />
-          </Link>
+          <Logo />
 
           {/* Right Side - Profile & Cart */}
           <div className="flex items-center space-x-4">

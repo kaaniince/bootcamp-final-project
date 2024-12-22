@@ -33,7 +33,7 @@ function App() {
         <Router>
           <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex-grow">
+            <main className="flex-grow pt-[120px]">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
