@@ -1,6 +1,5 @@
 const mongooseOrder = require("../models/order");
 const kafka = require("../utils/kafka");
-const invoice = require("../utils/invoice");
 
 async function createOrder(orderParams) {
   try {
@@ -14,17 +13,17 @@ async function createOrder(orderParams) {
           orderId: newOrder._id,
           userId,
           products,
+          timestamp: new Date().toISOString(),
         });
+        console.log("Order kafka message sent successfully");
       } catch (kafkaError) {
-        console.error("Kafka message sending failed:", kafkaError);
-        // Kafka hatası durumunda siparişi yine de devam ettir
+        console.log("Kafka message sending failed:", kafkaError);
       }
-
-      await invoice.createInvoice(newOrder._id);
-      return newOrder;
     }
+
+    return newOrder;
   } catch (error) {
-    console.error("Order creation error:", error);
+    console.error("Error creating order:", error);
     throw error;
   }
 }
@@ -32,40 +31,29 @@ async function createOrder(orderParams) {
 async function getOrder(orderParams) {
   const { id } = orderParams;
   try {
-    const order = await mongooseOrder.findById(id);
-    return order;
+    return await mongooseOrder.findById(id);
   } catch (error) {
-    console.error("Error fetching order:", error);
-    return null;
+    console.error("Error getting order:", error);
+    throw error;
   }
 }
 
 async function getOrders() {
   try {
-    const orders = await mongooseOrder.find();
-    return orders;
+    return await mongooseOrder.find();
   } catch (error) {
-    console.error("Error fetching orders:", error);
-    return [];
+    console.error("Error getting orders:", error);
+    throw error;
   }
 }
 
 async function updateOrder(orderParams) {
-  const { id, userId, products } = orderParams;
+  const { id, ...updateData } = orderParams;
   try {
-    const order = await mongooseOrder.findById(id);
-    if (order) {
-      order.userId = userId;
-      order.products = products;
-      await order.save();
-      return order;
-    } else {
-      console.error("Order not found");
-      return null;
-    }
+    return await mongooseOrder.findByIdAndUpdate(id, updateData, { new: true });
   } catch (error) {
     console.error("Error updating order:", error);
-    return null;
+    throw error;
   }
 }
 

@@ -7,7 +7,7 @@ const kafka = new Kafka({
     initialRetryTime: 100,
     retries: 8,
   },
-  connectionTimeout: 3000,
+  connectionTimeout: 10000,
 });
 
 let producer = null;
@@ -26,19 +26,17 @@ const initKafka = async () => {
 
 const sendMessage = async (topic, message) => {
   try {
-    if (!producer || !producer.isConnected()) {
-      console.log("Producer not connected, attempting to reconnect...");
-      producer = await initKafka();
-      if (!producer) {
-        throw new Error("Failed to reconnect to Kafka");
-      }
+    if (!producer) {
+      await initKafka();
     }
 
     await producer.send({
       topic,
       messages: [{ value: JSON.stringify(message) }],
     });
-    console.log("Message sent successfully to Kafka");
+
+    console.log(`Message sent successfully to topic: ${topic}`);
+    return true;
   } catch (error) {
     console.error("Error sending message to Kafka:", error);
     throw error;
