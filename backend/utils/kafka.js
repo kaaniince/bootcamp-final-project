@@ -2,7 +2,11 @@ const { Kafka } = require("kafkajs");
 
 const kafka = new Kafka({
   clientId: "my-kafka-producer2",
-  brokers: ["localhost:9092"],
+  brokers: [process.env.KAFKA_BROKERS || "kafka:9092"],
+  retry: {
+    initialRetryTime: 100,
+    retries: 3,
+  },
 });
 
 const producer = kafka.producer();
