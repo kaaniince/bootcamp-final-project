@@ -18,4 +18,10 @@ export const ENDPOINTS = {
     GET_ALL: `${API_URL}/order`,
     GET_BY_ID: (id) => `${API_URL}/order/${id}`,
   },
+  BASKET: {
+    ADD_TO_CART: `${API_URL}/basket`,
+    REMOVE_FROM_CART: `${API_URL}/basket`,
+    CLEAR_CART: `${API_URL}/basket/clear`,
+    VIEW_CART: (userId) => `${API_URL}/basket/${userId}`,
+  },
 };

@@ -1,8 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import { BsCheckCircle } from "react-icons/bs";
+import { useContext, useEffect } from "react";
+import { CartContext } from "../../contexts/CartContext";
+import { AuthContext } from "../../contexts/AuthContext";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
+  const { clearCart } = useContext(CartContext);
+  const { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (user) {
+      clearCart(user.id);
+    }
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-16 text-center">

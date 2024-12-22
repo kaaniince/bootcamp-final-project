@@ -1,138 +1,104 @@
 const { redisCon } = require("../utils/redis");
 
-async function addToCart(params) {
-  if (
-    typeof params.userId !== "string" ||
-    params.userId.trim() === "" ||
-    typeof params.productId !== "string" ||
-    params.productId.trim() === ""
-  ) {
-    console.error("Invalid userId or productId");
-    return false;
-  }
+const CART_PREFIX = "cart:";
 
-  try {
-    const client = await redisCon();
-    const cartKey = `cart:${params.userId.trim()}`;
-    const currentBasket = (await client.get(cartKey))
-      ? JSON.parse(await client.get(cartKey))
-      : [];
+const basketService = {
+  async getRedisClient() {
+    return await redisCon();
+  },
 
-    const productIndex = currentBasket.findIndex(
-      (item) => item.productId === params.productId.trim()
-    );
-    if (productIndex !== -1) {
-      currentBasket[productIndex].quantity += parseInt(params.quantity, 10);
-    } else {
-      currentBasket.push({
-        productId: params.productId.trim(),
-        productName: params.productName.trim(),
-        quantity: parseInt(params.quantity, 10),
-      });
+  async getCart(userId) {
+    const client = await this.getRedisClient();
+    const cartKey = CART_PREFIX + userId;
+
+    try {
+      const cartData = await client.get(cartKey);
+      return cartData ? JSON.parse(cartData) : [];
+    } catch (error) {
+      console.error("Error getting cart from Redis:", error);
+      throw error;
     }
+  },
 
-    await client.set(cartKey, JSON.stringify(currentBasket));
-    return true;
-  } catch (error) {
-    console.error("Error in addToCart:", error);
-    return false;
-  }
-}
+  async addToCart(userId, product) {
+    const client = await this.getRedisClient();
+    const cartKey = CART_PREFIX + userId;
 
-async function removeFromCart({ userId, productId, quantity = 1 }) {
-  if (
-    typeof userId !== "string" ||
-    userId.trim() === "" ||
-    typeof productId !== "string" ||
-    productId.trim() === ""
-  ) {
-    console.error("Invalid userId or productId");
-    return false;
-  }
+    try {
+      let cart = await this.getCart(userId);
+      const existingProductIndex = cart.findIndex(
+        (item) => item.id === product.id
+      );
 
-  try {
-    const client = await redisCon();
-    const cartKey = `cart:${userId.trim()}`;
-    const currentBasket = (await client.get(cartKey))
-      ? JSON.parse(await client.get(cartKey))
-      : [];
-
-    const productIndex = currentBasket.findIndex(
-      (product) => product.productId === productId.trim()
-    );
-
-    if (productIndex !== -1) {
-      // Mevcut miktar
-      const currentQuantity = currentBasket[productIndex].quantity;
-
-      // Yeni miktar hesaplama
-      const newQuantity = currentQuantity - parseInt(quantity, 10);
-
-      if (newQuantity > 0) {
-        // Miktar 0'dan büyükse güncelle
-        currentBasket[productIndex].quantity = newQuantity;
+      if (existingProductIndex >= 0) {
+        cart[existingProductIndex].amount += 1;
       } else {
-        // Miktar 0 veya daha azsa ürünü tamamen kaldır
-        currentBasket.splice(productIndex, 1);
+        cart.push({ ...product, amount: 1 });
       }
 
-      await client.set(cartKey, JSON.stringify(currentBasket));
-      return true;
+      await client.set(cartKey, JSON.stringify(cart));
+      return cart;
+    } catch (error) {
+      console.error("Error adding to cart in Redis:", error);
+      throw error;
     }
+  },
 
-    return false; // Ürün bulunamadıysa false döndür
-  } catch (error) {
-    console.error("Error in removeFromCart:", error);
-    return false;
-  }
-}
+  async removeFromCart(userId, productId) {
+    const client = await this.getRedisClient();
+    const cartKey = CART_PREFIX + userId;
 
-async function viewCart(userId) {
-  if (typeof userId !== "string" || userId.trim() === "") {
-    console.error("Invalid userId");
-    return null;
-  }
-
-  try {
-    const client = await redisCon();
-    const cartKey = `cart:${userId.trim()}`;
-    // hGetAll yerine get kullanıp JSON parse edelim
-    const cart = await client.get(cartKey);
-    return cart ? JSON.parse(cart) : [];
-  } catch (error) {
-    console.error("Error in viewCart:", error);
-    return null;
-  }
-}
-
-async function clearCart(userId) {
-  if (typeof userId !== "string" || userId.trim() === "") {
-    console.error("Invalid userId");
-    return false;
-  }
-
-  try {
-    const client = await redisCon();
-    const cartKey = `cart:${userId.trim()}`;
-    await client.del(cartKey);
-
-    const remainingContent = await client.hGetAll(cartKey);
-    if (Object.keys(remainingContent).length === 0) {
-      console.log(`Cart cleared successfully for user: ${userId}`);
-      return true;
-    } else {
-      console.error(`Failed to clear cart for user: ${userId}`);
-      return false;
+    try {
+      let cart = await this.getCart(userId);
+      cart = cart.filter((item) => item.id !== productId);
+      await client.set(cartKey, JSON.stringify(cart));
+      return cart;
+    } catch (error) {
+      console.error("Error removing from cart in Redis:", error);
+      throw error;
     }
-  } catch (error) {
-    console.error("Error in clearCart:", error);
-    return false;
-  }
-}
+  },
 
-module.exports = {
-  addToCart,
-  removeFromCart,
-  viewCart,
-  clearCart,
+  async clearCart(userId) {
+    const client = await this.getRedisClient();
+    const cartKey = CART_PREFIX + userId;
+
+    try {
+      await client.del(cartKey);
+      return true;
+    } catch (error) {
+      console.error("Error clearing cart in Redis:", error);
+      throw error;
+    }
+  },
+
+  async updateQuantity(userId, productId, action) {
+    const client = await this.getRedisClient();
+    const cartKey = CART_PREFIX + userId;
+
+    try {
+      let cart = await this.getCart(userId);
+      const productIndex = cart.findIndex((item) => item.id === productId);
+
+      if (productIndex >= 0) {
+        if (action === "increase") {
+          cart[productIndex].amount += 1;
+        } else if (action === "decrease") {
+          if (cart[productIndex].amount > 1) {
+            cart[productIndex].amount -= 1;
+          } else {
+            cart = cart.filter((item) => item.id !== productId);
+          }
+        }
+        await client.set(cartKey, JSON.stringify(cart));
+      }
+
+      return cart;
+    } catch (error) {
+      console.error("Error updating quantity in Redis:", error);
+      throw error;
+    }
+  },
 };
+
+module.exports = basketService;

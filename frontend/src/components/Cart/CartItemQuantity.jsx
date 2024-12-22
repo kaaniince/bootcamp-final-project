@@ -1,5 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useContext } from "react";
 import { FaMinusCircle, FaPlusCircle } from "react-icons/fa";
+import { AuthContext } from "../../contexts/AuthContext";
 
 const CartItemQuantity = ({
   id,
@@ -8,15 +9,17 @@ const CartItemQuantity = ({
   increaseAmount,
   decreaseAmount,
 }) => {
+  const { user } = useContext(AuthContext);
   const totalPrice = useMemo(() => {
     return price * amount;
   }, [price, amount]);
+
   return (
     <div className="flex gap-x-3 h-[36px] text-sm items-center">
       <div className="flex justify-center items-center w-full h-full border max-w-[100px] rounded-md shadow-sm">
         <div
-          className="flex-1 flex justify-center items-center cursor-pointer h-full"
-          onClick={() => decreaseAmount(id)}
+          onClick={() => decreaseAmount(id, user?.id)}
+          className="flex-1 h-full flex justify-center items-center cursor-pointer"
         >
           <FaMinusCircle className="text-primary" />
         </div>
@@ -24,8 +27,8 @@ const CartItemQuantity = ({
           {amount}
         </div>
         <div
-          className="flex-1 flex justify-center items-center cursor-pointer h-full"
-          onClick={() => increaseAmount(id)}
+          onClick={() => increaseAmount(id, user?.id)}
+          className="flex-1 h-full flex justify-center items-center cursor-pointer"
         >
           <FaPlusCircle className="text-primary" />
         </div>
