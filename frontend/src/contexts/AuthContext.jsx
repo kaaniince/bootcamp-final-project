@@ -38,12 +38,12 @@ const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const response = await fetch(`${ENDPOINTS.AUTH.LOGIN}`, {
+      const response = await fetch(ENDPOINTS.AUTH.LOGIN, {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(credentials),
       });
 
@@ -52,15 +52,18 @@ const AuthProvider = ({ children }) => {
       if (response.ok) {
         setUser(data.user);
         setIsAuthenticated(true);
-        toast.success("Welcome back!");
-        return true;
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        await checkAuth();
+
+        return { success: true };
       } else {
-        toast.error(data.error || "Invalid credentials");
-        return false;
+        return { success: false, error: data.error };
       }
     } catch (error) {
-      toast.error("An error occurred. Please try again.");
-      return false;
+      console.error("Login error:", error);
+      return { success: false, error: "An error occurred during login" };
     }
   };
 

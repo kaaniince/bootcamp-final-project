@@ -14,7 +14,7 @@ export const ENDPOINTS = {
     GET_CURRENT_USER: `${API_URL}/auth/me`,
   },
   ORDER: {
-    CREATE: `${API_URL}/order`,
+    CREATE_ORDER: `${API_URL}/order`,
     GET_ALL: `${API_URL}/order`,
     GET_BY_ID: (id) => `${API_URL}/order/${id}`,
   },

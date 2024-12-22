@@ -4,9 +4,10 @@ import { CartContext } from "../../contexts/CartContext";
 import { ENDPOINTS } from "../../constants";
 import { toast } from "react-toastify";
 
-const PaymentForm = ({ onPaymentSuccess, loading }) => {
+const PaymentForm = ({ onPaymentSuccess }) => {
   const { user } = useContext(AuthContext);
   const { cart } = useContext(CartContext);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     cardName: "",
     cardNumber: "",
@@ -74,25 +75,43 @@ const PaymentForm = ({ onPaymentSuccess, loading }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Kullanıcı girişi kontrolü
-    if (!user || !user._id) {
-      toast.error("Please login to place an order");
-      return;
-    }
-    if (cart.length === 0) {
-      toast.error("Your cart is empty");
-      return;
-    }
     try {
-      // Create the order
-      await createOrder();
+      if (!user?._id) {
+        toast.error("Please login to continue");
+        return;
+      }
 
-      // If order creation is successful, proceed with payment success
-      onPaymentSuccess();
-      toast.success("Order placed successfully!");
+      if (!cart?.length) {
+        toast.error("Your cart is empty");
+        return;
+      }
+
+      // Form validasyonu
+      const requiredFields = [
+        "cardName",
+        "cardNumber",
+        "expiry",
+        "cvv",
+        "address",
+        "city",
+        "zipCode",
+      ];
+      const missingFields = requiredFields.filter((field) => !formData[field]);
+
+      if (missingFields.length > 0) {
+        toast.error(
+          `Please fill in all required fields: ${missingFields.join(", ")}`
+        );
+        return;
+      }
+
+      setLoading(true);
+      await onPaymentSuccess();
     } catch (error) {
-      console.error("Order error:", error);
-      toast.error(error.message || "Failed to place order. Please try again.");
+      console.error("Payment submission error:", error);
+      toast.error(error.message || "Payment failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
