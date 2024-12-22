@@ -1,12 +1,18 @@
 const express = require("express");
+const http = require("http");
 const routes = require("./routes/index");
 const connectDB = require("./config/db");
 const { redisCon } = require("./utils/redis");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
+const { initWebSocket } = require("./services/websocket");
 
 const app = express();
+const server = http.createServer(app);
+
+// Initialize WebSocket after creating HTTP server
+initWebSocket(server);
 
 //connect to db
 connectDB();
@@ -45,6 +51,6 @@ app.get(
 //routes
 app.use("/api", routes);
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000", process.env.JWT_SECRET);
+server.listen(3000, () => {
+  console.log("Server is running on port 3000");
 });

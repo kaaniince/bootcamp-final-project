@@ -1,5 +1,6 @@
 const mongooseOrder = require("../models/order");
 const kafka = require("../utils/kafka");
+const { broadcastMessage } = require("./websocket");
 
 async function createOrder(orderParams) {
   try {
@@ -19,6 +20,14 @@ async function createOrder(orderParams) {
       } catch (kafkaError) {
         console.log("Kafka message sending failed:", kafkaError);
       }
+
+      // Send WebSocket notification
+      broadcastMessage({
+        type: "NEW_ORDER",
+        message: `New order created with ID: ${newOrder._id}`,
+        orderId: newOrder._id,
+        timestamp: new Date().toISOString(),
+      });
     }
 
     return newOrder;

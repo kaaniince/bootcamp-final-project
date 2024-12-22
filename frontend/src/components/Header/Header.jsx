@@ -36,8 +36,8 @@ const Header = () => {
       {/* Header */}
       <header
         className={`${
-          isActive ? "bg-white py-4 shadow-md" : "bg-none py-6"
-        } fixed w-full z-10 transition-all top-9`}
+          isActive ? "bg-white py-4 shadow-lg" : "bg-white py-6"
+        } fixed w-full z-10 transition-all duration-300`}
       >
         <div className="container mx-auto flex items-center justify-between h-full">
           {/* Logo */}

@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import PrivateRoute from "./components/PrivateRoute";
 import Payment from "./components/Payment/Payment";
 import PaymentSuccess from "./components/Payment/PaymentSuccess";
+import Notifications from "./components/Notifications/Notifications";
 // Load non-critical components with lazy loading
 const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const Home = lazy(() => import("./pages/Home"));
@@ -62,6 +63,7 @@ function App() {
             <Footer />
           </div>
         </Router>
+        <Notifications />
         <ToastContainer
           position="top-right"
           autoClose={3000}
