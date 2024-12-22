@@ -1,6 +1,12 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { AuthContext } from "../../contexts/AuthContext";
+import { CartContext } from "../../contexts/CartContext";
+import { ENDPOINTS } from "../../constants";
+import { toast } from "react-toastify";
 
 const PaymentForm = ({ onPaymentSuccess, loading }) => {
+  const { user } = useContext(AuthContext);
+  const { cart } = useContext(CartContext);
   const [formData, setFormData] = useState({
     cardName: "",
     cardNumber: "",
@@ -19,16 +25,79 @@ const PaymentForm = ({ onPaymentSuccess, loading }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const createOrder = async () => {
+    try {
+      // Form verilerinin dolu olduğunu kontrol et
+      if (
+        !formData.cardName ||
+        !formData.cardNumber ||
+        !formData.expiry ||
+        !formData.cvv
+      ) {
+        throw new Error("Please fill in all payment fields");
+      }
+      // Kullanıcı kontrolü
+      if (!user || !user._id) {
+        throw new Error("User not authenticated");
+      }
+      // Sipariş verilerini hazırla
+      const orderData = {
+        userId: user._id, // user.id yerine user._id kullanıyoruz
+        products: cart.map((item) => ({
+          id: item.id,
+          title: item.title,
+          price: item.price,
+          amount: item.amount,
+          image: item.image,
+        })),
+      };
+      console.log("Sending order data:", orderData); // Debug için
+      const response = await fetch(ENDPOINTS.ORDER.CREATE, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create order");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Order creation error:", error);
+      throw error;
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onPaymentSuccess();
+
+    // Kullanıcı girişi kontrolü
+    if (!user || !user._id) {
+      toast.error("Please login to place an order");
+      return;
+    }
+    if (cart.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+    try {
+      // Create the order
+      await createOrder();
+
+      // If order creation is successful, proceed with payment success
+      onPaymentSuccess();
+      toast.success("Order placed successfully!");
+    } catch (error) {
+      console.error("Order error:", error);
+      toast.error(error.message || "Failed to place order. Please try again.");
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <h2 className="text-xl font-semibold mb-4">Payment Details</h2>
-
-      {/* Kart Bilgileri */}
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -39,7 +108,7 @@ const PaymentForm = ({ onPaymentSuccess, loading }) => {
             name="cardName"
             value={formData.cardName}
             onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brown-500 focus:ring-brown-500"
             required
           />
         </div>
@@ -53,8 +122,7 @@ const PaymentForm = ({ onPaymentSuccess, loading }) => {
             name="cardNumber"
             value={formData.cardNumber}
             onChange={handleChange}
-            placeholder="1234 5678 9012 3456"
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brown-500 focus:ring-brown-500"
             required
           />
         </div>
@@ -70,10 +138,11 @@ const PaymentForm = ({ onPaymentSuccess, loading }) => {
               value={formData.expiry}
               onChange={handleChange}
               placeholder="MM/YY"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brown-500 focus:ring-brown-500"
               required
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               CVV
@@ -83,17 +152,11 @@ const PaymentForm = ({ onPaymentSuccess, loading }) => {
               name="cvv"
               value={formData.cvv}
               onChange={handleChange}
-              placeholder="123"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brown-500 focus:ring-brown-500"
               required
             />
           </div>
         </div>
-      </div>
-
-      {/* Teslimat Adresi */}
-      <div className="space-y-4 mt-6">
-        <h3 className="text-lg font-medium">Shipping Address</h3>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -104,7 +167,7 @@ const PaymentForm = ({ onPaymentSuccess, loading }) => {
             name="address"
             value={formData.address}
             onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brown-500 focus:ring-brown-500"
             required
           />
         </div>
@@ -119,10 +182,11 @@ const PaymentForm = ({ onPaymentSuccess, loading }) => {
               name="city"
               value={formData.city}
               onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brown-500 focus:ring-brown-500"
               required
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               ZIP Code
@@ -132,7 +196,7 @@ const PaymentForm = ({ onPaymentSuccess, loading }) => {
               name="zipCode"
               value={formData.zipCode}
               onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brown-500 focus:ring-brown-500"
               required
             />
           </div>

@@ -13,4 +13,9 @@ export const ENDPOINTS = {
     UPDATE_PROFILE: `${API_URL}/auth/update-profile`,
     GET_CURRENT_USER: `${API_URL}/auth/me`,
   },
+  ORDER: {
+    CREATE: `${API_URL}/order`,
+    GET_ALL: `${API_URL}/order`,
+    GET_BY_ID: (id) => `${API_URL}/order/${id}`,
+  },
 };

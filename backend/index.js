@@ -8,25 +8,27 @@ require("dotenv").config();
 
 const app = express();
 
-//json
-app.use(express.json());
-
-//urlencoded
-app.use(express.urlencoded({ extended: true }));
-
 //connect to db
 connectDB();
 
 redisCon();
 
-app.use(cookieParser());
-
+// CORS configuration
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow only your frontend origin
-    credentials: true, // Cookie'lerin frontend'e gönderilmesine izin ver
+    origin: "http://localhost:5173",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Accept", "Authorization"],
   })
 );
+
+// Cookie parser
+app.use(cookieParser());
+
+// Body parser
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get(
   "/test",

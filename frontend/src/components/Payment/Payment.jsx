@@ -11,7 +11,7 @@ const Payment = () => {
 
   const handlePaymentSuccess = () => {
     setLoading(true);
-    // Ödeme başarılı olduğunda
+    // Clear cart and navigate after successful payment
     setTimeout(() => {
       clearCart();
       navigate("/payment-success");
