@@ -1,42 +1,51 @@
-const moongoseOrder = require("../models/order");
+const mongooseOrder = require("../models/order");
 const kafka = require("../utils/kafka");
 const invoice = require("../utils/invoice");
 
 async function createOrder(orderParams) {
   try {
     const { userId, products } = orderParams;
-    const newOrder = new moongoseOrder({ userId, products });
+    const newOrder = new mongooseOrder({ userId, products });
     await newOrder.save();
+
     if (newOrder) {
-      kafka.sendMessage("order", `Order created: orderId: ${newOrder.id}`);
-      invoice.createInvoice(newOrder.id);
-    } else {
-      console.error("Sipariş oluşturulurken hata oluştu");
+      try {
+        await kafka.sendMessage("orders", {
+          orderId: newOrder._id,
+          userId,
+          products,
+        });
+      } catch (kafkaError) {
+        console.error("Kafka message sending failed:", kafkaError);
+        // Kafka hatası durumunda siparişi yine de devam ettir
+      }
+
+      await invoice.createInvoice(newOrder._id);
+      return newOrder;
     }
-    return newOrder;
   } catch (error) {
-    console.error("Sipariş oluşturulurken hata oluştu:", error);
-    return null;
+    console.error("Order creation error:", error);
+    throw error;
   }
 }
 
 async function getOrder(orderParams) {
   const { id } = orderParams;
   try {
-    const order = await moongoseOrder.findById(id);
+    const order = await mongooseOrder.findById(id);
     return order;
   } catch (error) {
-    console.error("Sipariş getirilirken hata oluştu:", error);
+    console.error("Error fetching order:", error);
     return null;
   }
 }
 
 async function getOrders() {
   try {
-    const orders = await moongoseOrder.find();
+    const orders = await mongooseOrder.find();
     return orders;
   } catch (error) {
-    console.error("Siparişler getirilirken hata oluştu:", error);
+    console.error("Error fetching orders:", error);
     return [];
   }
 }
@@ -44,18 +53,18 @@ async function getOrders() {
 async function updateOrder(orderParams) {
   const { id, userId, products } = orderParams;
   try {
-    const order = await moongoseOrder.findById(id);
+    const order = await mongooseOrder.findById(id);
     if (order) {
       order.userId = userId;
       order.products = products;
       await order.save();
       return order;
     } else {
-      console.error("Sipariş bulunamadı");
+      console.error("Order not found");
       return null;
     }
   } catch (error) {
-    console.error("Sipariş güncellenirken hata oluştu:", error);
+    console.error("Error updating order:", error);
     return null;
   }
 }
@@ -63,10 +72,10 @@ async function updateOrder(orderParams) {
 async function deleteOrder(orderParams) {
   const { id } = orderParams;
   try {
-    const deletedOrder = await moongoseOrder.findByIdAndDelete(id);
+    const deletedOrder = await mongooseOrder.findByIdAndDelete(id);
     return deletedOrder ? true : false;
   } catch (error) {
-    console.error("Sipariş silinirken hata oluştu:", error);
+    console.error("Error deleting order:", error);
     return false;
   }
 }
