@@ -45,7 +45,7 @@ const productController = {
     }
   },
   getProducts: async (req, res) => {
-    console.log("Connected to kaan");
+    console.log("Connected to products");
 
     try {
       const response = await productService.getProducts();
