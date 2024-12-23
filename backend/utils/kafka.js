@@ -2,7 +2,7 @@ const { Kafka } = require("kafkajs");
 
 const kafka = new Kafka({
   clientId: "my-app",
-  brokers: [process.env.KAFKA_BROKERS || "kafka:29092"],
+  brokers: ["kafka:29092"],
   retry: {
     initialRetryTime: 100,
     retries: 8,
